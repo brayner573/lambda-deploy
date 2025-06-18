@@ -36,5 +36,5 @@ jobs:
       - name: Deploy to Lambda
         run: |
           aws lambda update-function-code \
-            --function-name lambda_fuction.py \
+            --function-name MiFuncionLambda \
             --zip-file fileb://function.zip

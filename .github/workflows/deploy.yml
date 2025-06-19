@@ -42,7 +42,7 @@ jobs:
              --zip-file fileb://function.zip
       - name: Upload ZIP to S3
         run: |
-          BUCKET_NAME=github-s3-proyect
+          BUCKET_NAME=my-bucket-s3upeu 
           BRANCH=${GITHUB_REF##*/}
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           aws s3 cp function.zip s3://$BUCKET_NAME/backups/$BRANCH/function-$TIMESTAMP.zip

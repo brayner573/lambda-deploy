@@ -47,4 +47,4 @@ jobs:
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           aws s3 cp function.zip s3://$BUCKET_NAME/backups/$BRANCH/function-$TIMESTAMP.zip
       - name: run file python
-        run: python main.py
+        run: python brayner.py

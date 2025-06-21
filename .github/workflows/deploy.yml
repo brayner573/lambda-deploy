@@ -22,6 +22,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -36,9 +37,14 @@ jobs:
 
       - name: Deploy to Lambda
         run: |
-            lambda_function=$(if [[ "${GITHUB_REF##*/}" == "main" ]]; then echo "lambda_function_prod"; else echo "lambda_function_dev"; fi)
-            aws lambda update-function-code \
-             --function-name $lambda_function \
-             --zip-file fileb://function.zip
-    
-             
+          lambda_function=$(if [[ "${GITHUB_REF##*/}" == "main" ]]; then echo "lambda_function_prod"; else echo "lambda_function_dev"; fi)
+          aws lambda update-function-code \
+            --function-name $lambda_function \
+            --zip-file fileb://function.zip
+
+      - name: Upload ZIP to S3
+        run: |
+          BUCKET_NAME=my-bucket-s3upeu
+          BRANCH=${GITHUB_REF##*/}
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          aws s3 cp function.zip s3://$BUCKET_NAME/backups/$BRANCH/function-$TIMESTAMP.zip

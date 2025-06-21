@@ -38,9 +38,12 @@ jobs:
       - name: Deploy to Lambda
         run: |
           lambda_function=$(if [[ "${GITHUB_REF##*/}" == "main" ]]; then echo "lambda_function_prod"; else echo "lambda_function_dev"; fi)
+          aws s3 cp function.zip s3://my-bucket-s3upeu/lambda/function.zip
+
           aws lambda update-function-code \
             --function-name $lambda_function \
-            --zip-file fileb://function.zip
+            --s3-bucket my-bucket-s3upeu \
+            --s3-key lambda/function.zip
 
       - name: Upload ZIP to S3
         run: |

@@ -41,9 +41,10 @@ jobs:
           aws s3 cp function.zip s3://my-bucket-s3upeu/lambda/function.zip
 
           aws lambda update-function-code \
-            --function-name $lambda_function \
-            --s3-bucket my-bucket-s3upeu \
-            --s3-key lambda/function.zip
+          --function-name lambda_function \
+          --s3-bucket my-bucket-s3upeu \
+          --s3-key lambda/function.zip \
+          --region us-east-1
 
       - name: Upload ZIP to S3
         run: |

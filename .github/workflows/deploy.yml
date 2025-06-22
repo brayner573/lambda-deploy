@@ -38,17 +38,17 @@ jobs:
       - name: Deploy to Lambda
         run: |
           lambda_function=$(if [[ "${GITHUB_REF##*/}" == "main" ]]; then echo "lambda_function_prod"; else echo "lambda_function_dev"; fi)
-          aws s3 cp function.zip s3://my-bucket-s3upeu/lambda/function.zip
+          aws s3 cp function.zip s3://upeu-producer-x-bucket-2/lambda/function.zip
 
           aws lambda update-function-code \
           --function-name lambda_function \
-          --s3-bucket my-bucket-s3upeu \
+          --s3-bucket upeu-producer-x-bucket-2 \
           --s3-key lambda/function.zip \
           --region us-east-1
 
       - name: Upload ZIP to S3
         run: |
-          BUCKET_NAME=my-bucket-s3upeu
+          BUCKET_NAME=upeu-producer-x-bucket-2
           BRANCH=${GITHUB_REF##*/}
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           aws s3 cp function.zip s3://$BUCKET_NAME/backups/$BRANCH/function-$TIMESTAMP.zip

@@ -30,7 +30,7 @@ def apply_rules(row):
 
     # Regla 5: Fecha válida
     try:
-        fecha = datetime.strptime(row['fecha_not'], "%Y-%m-%d")
+        fecha = datetime.strptime(row['fecha_not'], "%m/%d/%Y")
         if fecha > datetime.now():
             return None
         row['fecha_not'] = fecha.strftime("%Y-%m-%d")

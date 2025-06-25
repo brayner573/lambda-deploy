@@ -25,7 +25,7 @@ data "aws_iam_role" "lambda_exec" {
   name = "lambda_exec_role"
 }
 
-# Lambda function
+# Lambda function 
 resource "aws_lambda_function" "lambda" {
   function_name    = var.lambda_name
   filename         = "lambda_function_payload.zip"

@@ -72,9 +72,15 @@ def lambda_handler(event, context):
     input_bucket = os.environ['INPUT_BUCKET']
     output_bucket = os.environ['OUTPUT_BUCKET']
 
+    print(f"Event received: {event}")
+    print(f"Input bucket: {input_bucket}, Output bucket: {output_bucket}")
+
     for record in event['Records']:
         key = record['s3']['object']['key']
+        print(f"Processing file: {key}")
+
         if not key.endswith('.csv'):
+            print("Skipped non-CSV file")
             continue
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -82,6 +88,7 @@ def lambda_handler(event, context):
             local_json = os.path.join(tmp, 'output.json')
 
             s3.download_file(input_bucket, key, local_csv)
+            print(f"Downloaded file to {local_csv}")
 
             cleaned_data = []
             with open(local_csv, newline='', encoding='utf-8') as f:
@@ -91,10 +98,14 @@ def lambda_handler(event, context):
                     if clean:
                         cleaned_data.append(clean)
 
+            print(f"Rows after cleaning: {len(cleaned_data)}")
+
             with open(local_json, 'w', encoding='utf-8') as f:
                 json.dump(cleaned_data, f, ensure_ascii=False)
 
             output_key = key.replace('uploads/', 'processed/').replace('.csv', '.json')
+            print(f"Uploading cleaned file to: {output_key}")
             s3.upload_file(local_json, output_bucket, output_key)
 
+    print("Lambda completed successfully")
     return {'status': 'success'}

@@ -2,9 +2,7 @@ name: Deploy Lambda Function
 
 on:
   push:
-    branches:
-      - main
-      - dev
+    branches: [main, dev]
 
 permissions:
   id-token: write
@@ -15,40 +13,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::200110254415:role/proyect-user 
+          role-to-assume: arn:aws:iam::200110254415:role/proyect-user
           aws-region: us-east-1
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt -t package
-          cp lambda_function.py package/
-          cd package && zip -r ../function.zip .
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-      - name: Deploy to Lambda
-        run: |
-          lambda_function=$(if [[ "${GITHUB_REF##*/}" == "main" ]]; then echo "lambda_function_prod"; else echo "lambda_function_dev"; fi)
-          aws s3 cp function.zip s3://upeu-producer-x-bucket-2/lambda/function.zip
+      - name: Terraform Init
+        run: terraform init
 
-          aws lambda update-function-code \
-          --function-name lambda_function \
-          --s3-bucket upeu-producer-x-bucket-2 \
-          --s3-key lambda/function.zip \
-          --region us-east-1
+      - name: Terraform Plan
+        run: terraform plan -var-file="terraform.tfvars"
 
-      - name: Upload ZIP to S3
-        run: |
-          BUCKET_NAME=upeu-producer-x-bucket-2
-          BRANCH=${GITHUB_REF##*/}
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          aws s3 cp function.zip s3://$BUCKET_NAME/backups/$BRANCH/function-$TIMESTAMP.zip
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var-file="terraform.tfvars"

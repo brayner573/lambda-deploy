@@ -10,6 +10,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Referencia al estado remoto del módulo S3
 data "terraform_remote_state" "s3" {
   backend = "s3"
   config = {
@@ -19,12 +20,18 @@ data "terraform_remote_state" "s3" {
   }
 }
 
+# Reutiliza el rol IAM existente llamado "lambda_exec_role"
+data "aws_iam_role" "lambda_exec" {
+  name = "lambda_exec_role"
+}
+
+# Lambda function
 resource "aws_lambda_function" "lambda" {
   function_name    = var.lambda_name
   filename         = "lambda_function_payload.zip"
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.11"
-  role             = aws_iam_role.lambda_exec.arn
+  role             = data.aws_iam_role.lambda_exec.arn
   source_code_hash = filebase64sha256("lambda_function_payload.zip")
 
   environment {
